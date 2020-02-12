@@ -9,54 +9,31 @@ def to_hex(arr):
 
 
 imArray = cv2.imread('laser.png')
-color_data = "{"
-frames = "{"
+output = f"frame %= {len(imArray) // 8};"
 for frame in range(0, len(imArray), 8):
     colors = set()
-    # actual frame open
-    color_data += "{"
-    frames += "{"
     for col in range(0, len(imArray[frame])):
         for row in range(frame, frame + 8):
             hex_val = to_hex(imArray[row][col])
             if hex_val != 0:
                 colors.add(hex_val)
+    output += f"if(frame == {frame})\n {{ \n"
     for color in colors:
-        # color data open
-        frames += "{"
-        color_data += hex(color) + ", "
+        output += f"uint8_t values_{color}[32] {{"
         for col in range(0, len(imArray[frame])):
             num_represent = 0
             for row in range(frame, frame + 8):
                 hex_color = to_hex(imArray[row][col])
                 num_represent += 2 ** (row - frame) if hex_color == color else 0
-            frames += hex(num_represent)
-            frames += ", "
-        frames = frames[0:-2]
-        frames += "}, "
-    color_data = color_data[0:-2]
-    frames = frames[0:-2]
-    frames += "}, "
-    color_data += "}, "
-color_data = color_data[0:-2]
-frames = frames[0: -2]
-color_data += "}"
-frames += "}"
+            output += hex(num_represent)
+            output += ", "
+        output = output[0:-2]
+        output += "};\n"
+        output += f"ColorData cd_{color};\n"
+        output += f"ColorData_init(&cd_{color}, values_{color}, {hex(color)});\n"
+        output += f"displayColor(&cd_{color});\n\n"
+    output += "}"
 
 
 with open("code.txt", "w") as f:
-    print(f'''
-vector<vector<vector<uint8_t>>> frameData {frames}
-vector<vector<int>> colorData {color_data}
-
-frame %= frameData.size()
-
-vector<*ColorData> colorDataVector;
-for(size_t i = 0; i < colorData[frame].size(); ++i) {{
-    ColorData cd;
-    colorArr = uint8_t[32];
-    std::copy(frameData[frame][i].begin(), frameData[frame][i].end(), colorArr);
-    ColorData_init(cd, colorData[frame][i], colorArr);
-    display_color_data(cd);
-}}
-''', file=f)
+    print(output, file=f)
