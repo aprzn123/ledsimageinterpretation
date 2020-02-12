@@ -9,7 +9,7 @@ def to_hex(arr):
 
 
 imArray = cv2.imread('laser.png')
-output = f"frame %= {len(imArray) // 8};"
+output = f"frame %= {len(imArray) // 8};\n"
 for frame in range(0, len(imArray), 8):
     colors = set()
     for col in range(0, len(imArray[frame])):
@@ -17,9 +17,9 @@ for frame in range(0, len(imArray), 8):
             hex_val = to_hex(imArray[row][col])
             if hex_val != 0:
                 colors.add(hex_val)
-    output += f"if(frame == {frame})\n {{ \n"
+    output += f"if(frame == {frame // 8}) {{\n"
     for color in colors:
-        output += f"uint8_t values_{color}[32] {{"
+        output += f"    uint8_t values_{hex(color)}[32] {{"
         for col in range(0, len(imArray[frame])):
             num_represent = 0
             for row in range(frame, frame + 8):
@@ -29,10 +29,10 @@ for frame in range(0, len(imArray), 8):
             output += ", "
         output = output[0:-2]
         output += "};\n"
-        output += f"ColorData cd_{color};\n"
-        output += f"ColorData_init(&cd_{color}, values_{color}, {hex(color)});\n"
-        output += f"displayColor(&cd_{color});\n\n"
-    output += "}"
+        output += f"    ColorData cd_{hex(color)};\n"
+        output += f"    ColorData_init(&cd_{hex(color)}, values_{hex(color)}, {hex(color)});\n"
+        output += f"    displayColor(&cd_{hex(color)});\n\n"
+    output += "}\n\n"
 
 
 with open("code.txt", "w") as f:
