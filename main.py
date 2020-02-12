@@ -30,8 +30,8 @@ for frame in range(0, len(imArray), 8):
             for row in range(frame, frame + 8):
                 hex_color = to_hex(imArray[row][col])
                 num_represent += 2 ** (row - frame) if hex_color == color else 0
-                frames += hex(num_represent)
-                frames += ", "
+            frames += hex(num_represent)
+            frames += ", "
         frames = frames[0:-2]
         frames += "}, "
     color_data = color_data[0:-2]
