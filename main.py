@@ -15,7 +15,8 @@ for frame in range(0, len(imArray), 8):
                 colors.add(hex_val)
     output += f"if(frame == {frame // 8}) {{\n"
     for color in colors:
-        output += f"    uint8_t *values_{hex(color)}[32] = new uint8_t[32] {{"
+        output += "{\n"
+        output += f"        uint8_t values_{hex(color)}[32] = {{"
         for col in range(0, len(imArray[frame])):
             num_represent = 0
             for row in range(frame, frame + 8):
@@ -25,11 +26,10 @@ for frame in range(0, len(imArray), 8):
             output += ", "
         output = output[0:-2]
         output += "};\n"
-        output += f"    ColorData cd_{hex(color)} = new ColorData;\n"
-        output += f"    ColorData_init(cd_{hex(color)}, values_{hex(color)}, {hex(color)});\n"
-        output += f"    displayColor(cd_{hex(color)});\n"
-        output += f"    delete[] values_{hex(color)};\n"
-        output += f"    delete cd_{hex(color)};\n"
+        output += f"        ColorData cd_{hex(color)} = new ColorData;\n"
+        output += f"        ColorData_init(&cd_{hex(color)}, values_{hex(color)}, {hex(color)});\n"
+        output += f"        displayColor(cd_{hex(color)});\n"
+        output += "}\n"
     output += "}\n\n"
 
 
