@@ -1,6 +1,11 @@
 import cv2
 from sys import argv
 
+try:
+    alliance_rep = argv[3]
+except IndexError:
+    alliance_rep = None
+
 def to_hex(arr):
     return arr[0] * 0x000001 + arr[1] * 0x000100 + arr[2] * 0x010000
 
@@ -27,7 +32,7 @@ for frame in range(0, len(imArray), 8):
         output = output[0:-2]
         output += "};\n"
         output += f"        ColorData cd_{hex(color)} = new ColorData;\n"
-        output += f"        ColorData_init(&cd_{hex(color)}, values_{hex(color)}, {hex(color)});\n"
+        output += f"        ColorData_init(&cd_{hex(color)}, {'alliance' if hex(color) == alliance_rep else 'values_' + hex(color)}, {hex(color)});\n"
         output += f"        displayColor(cd_{hex(color)});\n"
         output += "}\n"
     output += "}\n\n"
