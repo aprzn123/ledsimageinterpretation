@@ -1,14 +1,10 @@
 import cv2
-import numpy as np
-import matplotlib.pyplot as plt
-import argparse
-
+from sys import argv
 
 def to_hex(arr):
     return arr[0] * 0x000001 + arr[1] * 0x000100 + arr[2] * 0x010000
 
-
-imArray = cv2.imread('laser.png')
+imArray = cv2.imread(argv[1])
 output = f"frame %= {len(imArray) // 8};\n"
 for frame in range(0, len(imArray), 8):
     colors = set()
@@ -19,7 +15,7 @@ for frame in range(0, len(imArray), 8):
                 colors.add(hex_val)
     output += f"if(frame == {frame // 8}) {{\n"
     for color in colors:
-        output += f"    uint8_t values_{hex(color)}[32] {{"
+        output += f"    uint8_t *values_{hex(color)}[32] = new uint8_t[32] {{"
         for col in range(0, len(imArray[frame])):
             num_represent = 0
             for row in range(frame, frame + 8):
@@ -29,11 +25,13 @@ for frame in range(0, len(imArray), 8):
             output += ", "
         output = output[0:-2]
         output += "};\n"
-        output += f"    ColorData cd_{hex(color)};\n"
-        output += f"    ColorData_init(&cd_{hex(color)}, values_{hex(color)}, {hex(color)});\n"
-        output += f"    displayColor(&cd_{hex(color)});\n\n"
+        output += f"    ColorData cd_{hex(color)} = new ColorData;\n"
+        output += f"    ColorData_init(cd_{hex(color)}, values_{hex(color)}, {hex(color)});\n"
+        output += f"    displayColor(cd_{hex(color)});\n"
+        output += f"    delete[] values_{hex(color)};\n"
+        output += f"    delete cd_{hex(color)};\n"
     output += "}\n\n"
 
 
-with open("code.txt", "w") as f:
+with open(argv[2], "w") as f:
     print(output, file=f)
